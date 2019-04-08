@@ -1,4 +1,4 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3685] on 4 April 2019 at 10:05:48 pm'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3685] on 8 April 2019 at 12:17:58 am'!
 !classDefinition: #CustomerBookTest category: #'CodigoRepetido-Ejercicio'!
 TestCase subclass: #CustomerBookTest
 	instanceVariableNames: ''
@@ -16,6 +16,18 @@ checkIfRunningTimeIsBounded: aClosure withTimeLimit: timeLimit
 	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
 	
 	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < timeLimit
+	
+! !
+
+!CustomerBookTest methodsFor: 'testing' stamp: 'C. L. 4/7/2019 14:50:35'!
+isSuspendedCustomerCorerctlyStoredInCustomerBook: aCustomerBook withCustomerName: aCustomerName suspendedCustomers: numberOfSuspendedCustomers isCustomerPresent: isCustomerPresent
+
+	self assert: 0 equals: aCustomerBook numberOfActiveCustomers.
+	self assert: numberOfSuspendedCustomers equals: aCustomerBook numberOfSuspendedCustomers.
+	self assert: numberOfSuspendedCustomers equals: aCustomerBook numberOfCustomers. 
+	
+	self assert: (aCustomerBook includesCustomerNamed: aCustomerName) equals: isCustomerPresent.
+
 	
 ! !
 
@@ -69,10 +81,10 @@ test04CanNotRemoveAnInvalidCustomer
 		
 	self tryAndCatch: [customerBook removeCustomerNamed: 'Paul McCartney'] onException: NotFound do: actionHandler.! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'NR 4/3/2019 10:50:25'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'C. L. 4/7/2019 14:58:47'!
 test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 
-	| customerBook paulMcCartney|
+	| customerBook paulMcCartney |
 	
 	customerBook := CustomerBook new.
 	paulMcCartney := 'Paul McCartney'.
@@ -80,19 +92,17 @@ test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 	customerBook addCustomerNamed: paulMcCartney.
 	customerBook suspendCustomerNamed: paulMcCartney.
 	
-	self assert: 0 equals: customerBook numberOfActiveCustomers.
-	self assert: 1 equals: customerBook numberOfSuspendedCustomers.
-	self assert: 1 equals: customerBook numberOfCustomers.
-	self assert: (customerBook includesCustomerNamed: paulMcCartney).
+	self isSuspendedCustomerCorerctlyStoredInCustomerBook: customerBook withCustomerName: paulMcCartney suspendedCustomers: 1 isCustomerPresent: true.
+	
 	
 
 	
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'NR 4/3/2019 10:50:28'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'C. L. 4/7/2019 15:03:13'!
 test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 
-	| customerBook paulMcCartney|
+	| customerBook paulMcCartney |
 	
 	customerBook := CustomerBook new.
 	paulMcCartney := 'Paul McCartney'.
@@ -101,16 +111,13 @@ test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 	customerBook suspendCustomerNamed: paulMcCartney.
 	customerBook removeCustomerNamed: paulMcCartney.
 	
-	self assert: 0 equals: customerBook numberOfActiveCustomers.
-	self assert: 0 equals: customerBook numberOfSuspendedCustomers.
-	self assert: 0 equals: customerBook numberOfCustomers.
-	self deny: (customerBook includesCustomerNamed: paulMcCartney).
+	self isSuspendedCustomerCorerctlyStoredInCustomerBook: customerBook withCustomerName: paulMcCartney suspendedCustomers: 0 isCustomerPresent: false.
 
 
 	
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'NR 9/19/2018 17:55:41'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'C. L. 4/7/2019 15:08:50'!
 test07CanNotSuspendAnInvalidCustomer
 	
 	| customerBook johnLennon |
@@ -119,15 +126,11 @@ test07CanNotSuspendAnInvalidCustomer
 	johnLennon := 'John Lennon'.
 	customerBook addCustomerNamed: johnLennon.
 	
-	[ customerBook suspendCustomerNamed: 'Paul McCartney'.
-	self fail ]
-		on: CantSuspend 
-		do: [ :anError | 
+	self tryAndCatch: [customerBook suspendCustomerNamed: 'Paul McCartney'.] onException: CantSuspend do: [ :anError | 
 			self assert: customerBook numberOfCustomers = 1.
-			self assert: (customerBook includesCustomerNamed: johnLennon) ]
-! !
+			self assert: (customerBook includesCustomerNamed: johnLennon) ].! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'NR 9/19/2018 17:57:11'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'C. L. 4/7/2019 23:57:10'!
 test08CanNotSuspendAnAlreadySuspendedCustomer
 	
 	| customerBook johnLennon |
@@ -137,13 +140,9 @@ test08CanNotSuspendAnAlreadySuspendedCustomer
 	customerBook addCustomerNamed: johnLennon.
 	customerBook suspendCustomerNamed: johnLennon.
 	
-	[ customerBook suspendCustomerNamed: johnLennon.
-	self fail ]
-		on: CantSuspend 
-		do: [ :anError | 
+	self tryAndCatch: [ customerBook suspendCustomerNamed: johnLennon.] onException: CantSuspend do: [ :anError | 
 			self assert: customerBook numberOfCustomers = 1.
-			self assert: (customerBook includesCustomerNamed: johnLennon) ]
-! !
+			self assert: (customerBook includesCustomerNamed: johnLennon) ].! !
 
 !CustomerBookTest methodsFor: 'testing' stamp: 'C. L. 4/4/2019 21:54:44'!
 tryAndCatch: aClosureToTry onException: anException do: handlerAction
@@ -152,3 +151,9 @@ tryAndCatch: aClosureToTry onException: anException do: handlerAction
 	self fail ]
 		on: anException
 		do: handlerAction! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'CustomerBookTest class' category: #'CodigoRepetido-Ejercicio'!
+CustomerBookTest class
+	instanceVariableNames: 'customerBook'!
