@@ -1,4 +1,4 @@
-'From Cuis 5.0 of 7 November 2016 [latest update: #3685] on 8 April 2019 at 12:17:46 am'!
+'From Cuis 5.0 of 7 November 2016 [latest update: #3685] on 8 April 2019 at 3:29:56 am'!
 !classDefinition: #CustomerBook category: #'CodigoRepetido-Ejercicio'!
 Object subclass: #CustomerBook
 	instanceVariableNames: 'suspended active'
@@ -6,10 +6,10 @@ Object subclass: #CustomerBook
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
-!CustomerBook methodsFor: 'testing' stamp: 'NR 4/3/2019 10:14:26'!
+!CustomerBook methodsFor: 'testing' stamp: 'FA 4/8/2019 01:33:13'!
 includesCustomerNamed: aName
 
-	^(active includes: aName) or: [ suspended includes: aName ]! !
+	^(active includes: aName) or: [ suspended includes: aName ].! !
 
 !CustomerBook methodsFor: 'testing' stamp: 'NR 4/3/2019 10:14:26'!
 isEmpty
@@ -25,11 +25,11 @@ initialize
 	suspended:= OrderedCollection new.! !
 
 
-!CustomerBook methodsFor: 'customer management' stamp: 'NR 4/3/2019 10:14:26'!
+!CustomerBook methodsFor: 'customer management' stamp: 'FA 4/8/2019 01:19:39'!
 addCustomerNamed: aName
 
 	aName isEmpty ifTrue: [ self signalCustomerNameCannotBeEmpty ].
-	((active includes: aName) or: [suspended includes: aName]) ifTrue: [ self signalCustomerAlreadyExists ].
+	( self includesCustomerNamed: aName ) ifTrue: [ self signalCustomerAlreadyExists ].
 	
 	active add: aName ! !
 
@@ -38,20 +38,22 @@ numberOfActiveCustomers
 	
 	^active size! !
 
-!CustomerBook methodsFor: 'customer management' stamp: 'C. L. 4/8/2019 00:08:25'!
+!CustomerBook methodsFor: 'customer management' stamp: 'FA 4/8/2019 03:29:42'!
 numberOfCustomers
 	
-	^(self numberOfActiveCustomers) + (self numberOfSuspendedCustomers)! !
+	^self numberOfActiveCustomers + self numberOfSuspendedCustomers. ! !
 
 !CustomerBook methodsFor: 'customer management' stamp: 'NR 9/19/2018 17:36:09'!
 numberOfSuspendedCustomers
 	
 	^suspended size! !
 
-!CustomerBook methodsFor: 'customer management' stamp: 'C. L. 4/8/2019 00:13:04'!
+!CustomerBook methodsFor: 'customer management' stamp: 'FA 4/8/2019 01:25:54'!
 removeCustomerNamed: aName 
- 	
-	active remove: aName ifAbsent: [suspended remove: aName ifAbsent: [^NotFound signal]].
+
+	active remove: aName ifAbsent: [suspended remove: aName ifAbsent: [^ NotFound signal]].
+
+      ^ aName.
 ! !
 
 !CustomerBook methodsFor: 'customer management' stamp: 'HernanWilkinson 7/6/2011 17:52'!
