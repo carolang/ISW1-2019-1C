@@ -118,11 +118,11 @@ Object subclass: #Future
 	poolDictionaries: ''
 	category: 'Ingsoft-IntegerReports'!
 
-!Future methodsFor: 'as yet unclassified' stamp: 'C. L. 5/20/2019 16:43:53'!
+!Future methodsFor: 'as yet unclassified' stamp: 'C. L. 5/20/2019 16:57:37'!
 initializeEvaluating: aClosureToEvaluate
 	| initializingClosure |
 	readyResultSemaphore := Semaphore new.
-	initializingClosure := [value := aClosureToEvaluate . readyResultSemaphore signal.].
+	initializingClosure := [value := (aClosureToEvaluate value) . readyResultSemaphore signal.].
 	initializingClosure fork.! !
 
 !Future methodsFor: 'as yet unclassified' stamp: 'C. L. 5/20/2019 16:44:21'!
